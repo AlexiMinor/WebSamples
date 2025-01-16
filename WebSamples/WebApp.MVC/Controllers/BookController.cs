@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebApp.Core;
 using WebApp.Services.Abstract;
 
 namespace WebApp.MVC.Controllers;
@@ -17,6 +18,11 @@ public class BookController : Controller
         var books = _bookService.GetBooks();
         return View(books);
 
+    }
+
+    public IActionResult BookPreview(BookModel model)
+    {
+        return PartialView(model);
     }
 
     public IActionResult Details(int id)

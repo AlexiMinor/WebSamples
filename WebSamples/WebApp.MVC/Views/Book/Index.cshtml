@@ -2,8 +2,5 @@
 
 @foreach (var book in Model)
 {
-    <div>
-        <h2>@book.Author - @book.Title</h2>
-
-    </div>
+    @await Html.PartialAsync("BookPreview", book)
 }

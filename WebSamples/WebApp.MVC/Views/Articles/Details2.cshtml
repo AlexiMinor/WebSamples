@@ -1,0 +1,12 @@
+﻿@model ArticleModel
+
+@{
+    ViewBag.Title = "Article";
+    Layout = "_Layout";
+}
+
+<div>
+    @Html.LabelFor(model => model.Title)
+    @Html.DisplayFor(model => model.Title)
+    @* @Html.DisplayForModel() *@
+</div>

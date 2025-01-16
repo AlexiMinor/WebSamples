@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using WebApp.Data;
 using WebApp.Services.Abstract;
 using WebApp.Services.Implementations;
 using WebApp.Services.Samples;
@@ -12,9 +14,14 @@ namespace WebApp.MVC
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-            
+
+            builder.Services.AddDbContext<ArticleAggregatorContext>(
+                opt =>
+                opt.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
             builder.Services.AddScoped<IAuthorsService, AuthorsService>();
             builder.Services.AddScoped<IBookService, BookService>();
+            builder.Services.AddScoped<IArticleService, ArticleService>();
             
             builder.Services.AddTransient<ITransientService, TransientService>();
             builder.Services.AddScoped<IScopedService, ScopedService2>();

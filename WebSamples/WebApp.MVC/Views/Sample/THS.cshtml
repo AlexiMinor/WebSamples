@@ -1,0 +1,31 @@
+﻿@using WebApp.Core
+@model ArticleModel
+
+@{
+    ViewBag.Title = "Tag Helper samples";
+    Layout = "_Layout";
+}
+
+
+<form asp-action="AddProcessing" asp-controller="Articles" asp-area="" method="post">
+    <div>
+        <label asp-for="Title"></label>
+        <input asp-for="Title"/>
+    </div>
+</form>
+
+@* <a href="/home/privacy/123/12315" class="">123123</a> *@
+<a asp-action="Index" asp-controller="Home">Hello </a>
+
+@{
+    var bModel = new BookModel()
+    {
+        Id = 1,
+        Title = "test book",
+        Author = "test author",
+        Description = "test desc"
+
+    };
+}
+
+<partial name="PartialViews/BookPreview" model="@bModel"/>

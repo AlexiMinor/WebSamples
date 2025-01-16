@@ -1,0 +1,33 @@
+﻿@model ArticleCollectionModel
+
+@{
+    ViewBag.Title = "Articles";
+    Layout = "_Layout";
+}
+
+<h2>Articles</h2>
+
+<a asp-action="Add">Add</a>
+
+@foreach (var article in Model.Articles)
+{
+    <div>
+        <div>
+            <h3>@article.Title</h3>
+            <h5>@article.CreationDate</h5>
+        </div>
+        <div>
+            <p>
+                @article.Description
+            </p>
+            <a asp-action="Details" asp-route-id="@article.Id">Read details</a>
+        </div>
+        <div>
+            <h6>@article.Source</h6>
+            <span>Rate: @article.Rate</span>
+        </div>
+    </div>
+    <hr />
+}
+@* <pagination page-info="@Model.PageInfo" page-action="index"/> *@
+<pagination page-action="index" page-info="@Model.PageInfo"></pagination>

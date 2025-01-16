@@ -1,0 +1,26 @@
+﻿@model ArticleModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "_Layout";
+}
+
+<h2>Edit Article</h2>
+
+@using (Html.BeginForm("Edit", "Articles", FormMethod.Post))
+{
+    @Html.HiddenFor(model => model.Id)
+    <div>
+        @Html.LabelFor(model => model.Title)
+        @Html.EditorFor(model => model.Title)
+    </div>
+    <div>
+        @Html.LabelFor(model => model.Description)
+        @Html.EditorFor(model => model.Description)
+    </div>
+    <div>
+        @Html.LabelFor(model => model.Rate)
+        @Html.EditorFor(model => model.Rate)
+    </div>
+    <button>Submit</button>
+}

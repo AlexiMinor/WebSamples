@@ -1,0 +1,45 @@
+﻿@model List<int>
+@{
+    var isTrue = true;
+}
+@functions
+{
+    public int Sum(int a, int b)
+    {
+        return a + b;
+    }
+}
+<p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas laoreet magna ex, id vestibulum tortor congue in. Nam sed convallis felis, id lobortis risus. Nullam ac luctus turpis. Proin accumsan dolor nibh, sed interdum urna sollicitudin at. Morbi finibus vulputate lectus, rutrum pharetra mauris egestas in. Curabitur sodales quis odio eget laoreet. Sed et finibus metus. Aenean nec dictum nibh. Duis vitae sagittis orci. Donec leo erat, condimentum ut augue ut, faucibus auctor mauris. Sed vel odio vitae ex sollicitudin vulputate. Duis tincidunt, magna vitae gravida vehicula, neque risus gravida elit, sed pellentesque tellus justo vitae diam.</p>
+
+<p> Ut pretium pharetra elit eget ullamcorper. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nullam rhoncus, velit ac pretium efficitur, velit lorem vestibulum augue, a posuere enim felis sit amet nisl. Fusce rutrum scelerisque libero lacinia rhoncus. Nunc commodo bibendum velit quis tristique. Maecenas mattis dolor non leo sodales euismod. Etiam suscipit lacus id nisl sollicitudin aliquam id id purus. Integer mattis aliquet vestibulum. Etiam sodales ante id ex lobortis ullamcorper. Aliquam interdum erat lobortis urna euismod blandit. Pellentesque dictum rutrum ullamcorper. Duis a diam cursus, sagittis eros sed, viverra dui. Vivamus eget auctor nulla, eu pellentesque dui. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;</p> 
+
+
+<div>
+    <p>
+        @DateTime.Now.ToString("g")
+    </p>
+</div>
+
+<div>20+30</div>
+<div>@Sum(20,30)</div>
+
+@if (isTrue)
+{
+    @*If we need some string in C# block*@
+    @: Some Data
+}
+
+@if (Model.Any())
+{
+    foreach (var item in Model)
+    {
+        if (item % 2 == 0)
+        {
+            <h1>@item</h1>
+        }
+        else
+        {
+            <h2>@item</h2>
+        }
+    }
+}

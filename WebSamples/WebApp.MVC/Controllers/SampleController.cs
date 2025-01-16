@@ -19,10 +19,16 @@ namespace WebApp.MVC.Controllers
             _scopedService = scopedService;
             _transientService = transientService;
         }
-        //public string Index()
-        //{
-        //    return "Just hello";
-        //}
+
+        public IActionResult THS()
+        {
+            return View();
+        }
+        public IActionResult Index()
+        {
+            var data = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            return View(data);
+        }
         public IActionResult Test()
         {
             _transientService.Do();
@@ -36,16 +42,16 @@ namespace WebApp.MVC.Controllers
 
             return Ok();
         }
-        public string Index(Client client)
-        {
-            if (Request.Query.ContainsKey("SecretCode"))
-            {
-                return "You know secret code";
-            }
-            return string.IsNullOrWhiteSpace(client.FirstName) && string.IsNullOrWhiteSpace(client.LastName)
-                ? "Hello world" 
-                : $"Hello {client.FirstName} {client.LastName}";
-        }
+        //public string Index(Client client)
+        //{
+        //    if (Request.Query.ContainsKey("SecretCode"))
+        //    {
+        //        return "You know secret code";
+        //    }
+        //    return string.IsNullOrWhiteSpace(client.FirstName) && string.IsNullOrWhiteSpace(client.LastName)
+        //        ? "Hello world" 
+        //        : $"Hello {client.FirstName} {client.LastName}";
+        //}
 
         private IActionResult NonAction()
         {
@@ -55,7 +61,15 @@ namespace WebApp.MVC.Controllers
         //[NonAction]
         public IActionResult Hello(string name)
         {
-            return View(new HelloModel(){Name = name});//WebApi
+            ViewData["Name"] = "Bob";
+            ViewData["AAA"] = new[] {1,2,3};
+
+            ViewBag.Name = "Alice";
+            ViewBag.HelloMessage = "Hello ";
+            ViewBag.SomeData = new[] { 1, 2, 3 };
+
+            return View();
+            //return View(new HelloModel(){Name = name});//WebApi
         }
 
         //[ActionName("GoB")]
