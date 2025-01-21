@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
+using WebApp.MVC.RouteConstraints;
 using WebApp.Services.Abstract;
 using WebApp.Services.Implementations;
 using WebApp.Services.Samples;
@@ -12,8 +13,16 @@ namespace WebApp.MVC
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            //builder.Configuration
+            //    .AddInMemoryCollection(new Dictionary<string, string>()
+            //    {
+            //        {"name","Bob"}
+            //    });
+
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            //builder.Services.Configure<RouteOptions>(opt =>
+            //    opt.ConstraintMap.Add("secretCode", typeof(SecretCodeConstraint)));
 
             builder.Services.AddDbContext<ArticleAggregatorContext>(
                 opt =>
@@ -46,10 +55,16 @@ namespace WebApp.MVC
             app.UseRouting();
 
             app.UseAuthorization();
-
+            //app.Map("/", () => "Hello there");
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                //pattern: "{token:secretCode(234)}/{controller=Home}/{action=Index}/{id?}"
+                pattern: "{controller=Home}/{action=Index}/{id?}"
+                );
+            //app.MapControllerRoute(
+            //    "myCustomRouting",
+            //    "{action=Index}/{controller=Home}/{name?}"
+            //    );
 
             app.Run();
         }

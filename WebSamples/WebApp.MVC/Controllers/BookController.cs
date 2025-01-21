@@ -25,6 +25,7 @@ public class BookController : Controller
         return PartialView(model);
     }
 
+    [Route("{id:int}")]
     public IActionResult Details(int id)
     {
         var book = _bookService.GetBookById(id);

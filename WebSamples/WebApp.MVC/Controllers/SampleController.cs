@@ -5,14 +5,15 @@ using WebApp.Services.Samples;
 namespace WebApp.MVC.Controllers
 {
     //[NonController]
+    //[Route("test/[controller]/")]
     public class SampleController : Controller
     {
         private readonly ITestService _testService;
         private readonly IScopedService _scopedService;
         private readonly ITransientService _transientService;
 
-        public SampleController(ITestService testService, 
-            IScopedService scopedService, 
+        public SampleController(ITestService testService,
+            IScopedService scopedService,
             ITransientService transientService)
         {
             _testService = testService;
@@ -24,17 +25,19 @@ namespace WebApp.MVC.Controllers
         {
             return View();
         }
+        //[Route("{action}")]
         public IActionResult Index()
         {
             var data = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             return View(data);
         }
+
         public IActionResult Test()
         {
             _transientService.Do();
             _scopedService.Do();
             _testService.Do();
-            
+
             Console.WriteLine("second time:");
             _transientService.Do();
             _scopedService.Do();
@@ -62,7 +65,7 @@ namespace WebApp.MVC.Controllers
         public IActionResult Hello(string name)
         {
             ViewData["Name"] = "Bob";
-            ViewData["AAA"] = new[] {1,2,3};
+            ViewData["AAA"] = new[] { 1, 2, 3 };
 
             ViewBag.Name = "Alice";
             ViewBag.HelloMessage = "Hello ";
@@ -124,6 +127,39 @@ namespace WebApp.MVC.Controllers
         public IActionResult LoginProcess(LoginModel model)
         {
             return Ok(model);
+        }
+
+        [HttpGet]
+        public IActionResult Registration()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Registration(RegistrationModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [AcceptVerbs("Get", "Post")]
+        public IActionResult CheckEmail(string email)
+        {
+            if (email == "test@email.com")
+            {
+                return Json(false);
+            }
+
+            return Json(true);
+        }
+
+        public IActionResult Home()
+        {
+            return Ok();
         }
     }
 }
