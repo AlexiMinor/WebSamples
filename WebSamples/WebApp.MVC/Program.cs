@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
+using WebApp.MVC.Filters;
+using WebApp.MVC.Middlewares;
 using WebApp.MVC.RouteConstraints;
 using WebApp.Services.Abstract;
 using WebApp.Services.Implementations;
@@ -20,7 +22,11 @@ namespace WebApp.MVC
             //    });
 
             // Add services to the container.
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllersWithViews();//opt =>
+            //{
+            //    opt.Filters.Add<WhiteSpaceRemoverAttribute>();
+            //    opt.Filters.Add<CheckParametersAttribute>();
+            //});
             //builder.Services.Configure<RouteOptions>(opt =>
             //    opt.ConstraintMap.Add("secretCode", typeof(SecretCodeConstraint)));
 
@@ -44,7 +50,7 @@ namespace WebApp.MVC
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
-                app.UseExceptionHandler("/Home/Error");
+                //app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -54,7 +60,7 @@ namespace WebApp.MVC
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
             //app.Map("/", () => "Hello there");
             app.MapControllerRoute(
                 name: "default",
@@ -65,6 +71,8 @@ namespace WebApp.MVC
             //    "myCustomRouting",
             //    "{action=Index}/{controller=Home}/{name?}"
             //    );
+
+            app.UseMiddleware<ExceptionLoggerMiddleware>();
 
             app.Run();
         }

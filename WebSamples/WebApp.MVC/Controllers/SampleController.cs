@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebApp.MVC.Filters;
 using WebApp.MVC.Models;
 using WebApp.Services.Samples;
 
@@ -19,6 +20,19 @@ namespace WebApp.MVC.Controllers
             _testService = testService;
             _scopedService = scopedService;
             _transientService = transientService;
+        }
+
+        [CheckParameters]
+        public IActionResult Ok1(double number)
+        {
+            return Ok(number);
+        }
+
+        [CustomExceptionFilter]
+        public string Ex(int number)
+        {
+            var result = 1 / number;
+            return result.ToString();
         }
 
         public IActionResult THS()

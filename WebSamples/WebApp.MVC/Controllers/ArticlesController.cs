@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApp.Data;
 using WebApp.Data.Entities;
+using WebApp.MVC.Filters;
 using WebApp.MVC.Models;
 using WebApp.Services.Abstract;
 
@@ -19,6 +20,7 @@ namespace WebApp.MVC.Controllers
         }
 
         [HttpGet]
+        [WhiteSpaceRemover]
         public async Task<IActionResult> Index(PaginationModel pageData)
         {
             if (!ModelState.IsValid)

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using WebApp.MVC.Filters;
 using WebApp.MVC.Models;
 
 namespace WebApp.MVC.Controllers
@@ -16,6 +17,8 @@ namespace WebApp.MVC.Controllers
             _configuration = configuration;
         }
 
+        [CustomResourceFilter]
+        [WhiteSpaceRemover]
         public IActionResult Index()
         {
             var code = _configuration["Settings:SecretCode"];
