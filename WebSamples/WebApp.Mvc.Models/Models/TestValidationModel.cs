@@ -16,7 +16,7 @@ public class TestValidationModel
     public string Title { get; set; }
 
     [Range(-5,5)]
-    //[Url]
+    //[ImageUrl]
     //[Phone]
     //[CreditCard]
     public int Rate { get; set; }

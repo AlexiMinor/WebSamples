@@ -7,8 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.72" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="Riok.Mapperly" Version="4.1.1" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="9.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\WebApp.Core\WebApp.Core.csproj" />
+    <ProjectReference Include="..\WebApp.Data.CQS\WebApp.Data.CQS.csproj" />
     <ProjectReference Include="..\WebApp.Data\WebApp.Data.csproj" />
+    <ProjectReference Include="..\WebApp.Mvc.Models\WebApp.Mvc.Models.csproj" />
   </ItemGroup>
 
 </Project>

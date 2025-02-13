@@ -1,0 +1,13 @@
+﻿@{
+    ViewBag.Title = "Article";
+    Layout = "_Layout";
+}
+
+<h2>Aggregate</h2>
+
+<form asp-action="AggregateProcessing" asp-controller="Articles" method="post">
+    <div class="alert alert-warning" role="alert">
+        Please note that this process may take some time. Thank you for your patience.
+    </div>
+    <input class="btn btn-primary" type="submit" text="Submit"/>
+</form>

@@ -1,12 +1,20 @@
-﻿using WebApp.Data.Entities;
+﻿using WebApp.Core.DTOs;
+using WebApp.Data.Entities;
 
 namespace WebApp.Services.Abstract;
 
 public interface IArticleService
 {
-    public Task<Article?[]> GetAllPositiveAsync(double minRate, int pageSize, int pageNumber);
-    public Task<Article?> GetByIdAsync(Guid id);
-    public Task AddArticleAsync(Article article);
-    public Task<int> CountAsync(double minRate);
+    public Task<ArticleDto?[]> GetAllPositiveAsync(double? minRate, int pageSize, int pageNumber, CancellationToken cancellationToken = default);
+    public Task<Article?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    public Task AddArticleAsync(ArticleDto articleDto, CancellationToken cancellationToken = default);
+    public Task<int> CountAsync(double minRate, CancellationToken cancellationToken = default);
 
+    public Task<string[]> GetUniqueArticlesUrls(CancellationToken cancellationToken = default);
+
+    public Task AddArticlesAsync(IEnumerable<Article> newUniqueArticles, CancellationToken cancellationToken = default);
+
+    public Task UpdateContentByWebScrappingAsync(Guid[] ids, CancellationToken token = default);
+
+    public Task UpdateTextForArticlesByWebScrappingAsync(CancellationToken cancellationToken);
 }

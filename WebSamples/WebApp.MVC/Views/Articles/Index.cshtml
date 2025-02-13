@@ -7,7 +7,9 @@
 
 <h2>Articles</h2>
 
-<a asp-action="Add">Add</a>
+<div>
+    <a class="btn btn-warning" asp-action="Aggregate">Aggregate</a>
+</div>
 
 @foreach (var article in Model.Articles)
 {
@@ -17,9 +19,10 @@
             <h5>@article.CreationDate</h5>
         </div>
         <div>
-            <p>
-                @article.Description
-            </p>
+            <img src="@article.ImageUrl" width="400"/>
+        </div>
+        <div>
+           @Html.Raw(article.Description)
             <a asp-action="Details" asp-route-id="@article.Id">Read details</a>
         </div>
         <div>

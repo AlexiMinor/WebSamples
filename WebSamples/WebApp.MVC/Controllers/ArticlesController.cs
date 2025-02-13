@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using WebApp.Data;
 using WebApp.Data.Entities;
 using WebApp.MVC.Filters;
+using WebApp.MVC.Mappers;
 using WebApp.MVC.Models;
 using WebApp.Services.Abstract;
 
@@ -9,13 +11,26 @@ namespace WebApp.MVC.Controllers
 {
     public class ArticlesController : Controller
     {
+        
         private Guid _sourceId = Guid.Parse("2c487898-f266-4d8f-8462-b482787ce60c");
+
         private readonly IArticleService _articleService;
-        //private readonly ArticleAggregatorContext _articleAggregatorContext;//do not use directly in controller
-        public ArticlesController(IArticleService articleService)
-            //ArticleAggregatorContext articleAggregatorContext
+        private readonly ISourceService _sourceService;
+        private readonly IRssService _rssService;
+        private readonly ArticleMapper _articleMapper;
+        private readonly ILogger<ArticlesController> _logger;
+        public ArticlesController(IArticleService articleService, 
+                ILogger<ArticlesController> logger, 
+                ISourceService sourceService, 
+                IRssService rssService, 
+                ArticleMapper articleMapper)
+        //ArticleAggregatorContext articleAggregatorContext
         {
             _articleService = articleService;
+            _logger = logger;
+            _sourceService = sourceService;
+            _rssService = rssService;
+            _articleMapper = articleMapper;
             //_articleAggregatorContext = articleAggregatorContext;//
         }
 
@@ -23,58 +38,49 @@ namespace WebApp.MVC.Controllers
         [WhiteSpaceRemover]
         public async Task<IActionResult> Index(PaginationModel pageData)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                var list = new List<string>();
-                foreach (var item in ModelState)
+                if (!ModelState.IsValid)
                 {
-                    list.Add(item.Key);
+                    var list = ModelState.Select(item => item.Key).ToList();
+                    _logger.LogWarning("Invalid model state", list);    
+                    return BadRequest(list);
                 }
-                return BadRequest(list);
-            }
-            const double baseMinRate = 0;
-            var articles = (await _articleService.GetAllPositiveAsync(baseMinRate, pageData.PageSize, pageData.PageNumber))//will be replaced with mapper in future
-                .Select(article => new ArticleModel()
-                {
-                    Id = article.Id,
-                    Title = article.Title,
-                    Description = article.Description,
-                    Source = article.Source.Name,
-                    CreationDate = article.CreationDate,
-                    Rate = article.PositivityRate ?? 0
-                })
-                .ToArray();
-            var totalArticlesCount = await _articleService.CountAsync(baseMinRate);
-            var pageInfo = new PageInfo()
-            {
-                PageNumber = pageData.PageNumber,
-                PageSize = pageData.PageSize,
-                TotalItems = totalArticlesCount
-            };
+                const double baseMinRate = 0;
+                var articles = (await _articleService.GetAllPositiveAsync(baseMinRate, pageData.PageSize, pageData.PageNumber))//will be replaced with mapper in future
+                    .Select(article => _articleMapper.ArticleDtoToArticleModel(article))
+                    .ToArray();
+                _logger.LogInformation("Articles fetched successfully");
 
-            return View(new ArticleCollectionModel
+                var totalArticlesCount = await _articleService.CountAsync(baseMinRate);
+                var pageInfo = new PageInfo()
+                {
+                    PageNumber = pageData.PageNumber,
+                    PageSize = pageData.PageSize,
+                    TotalItems = totalArticlesCount
+                };
+
+                return View(new ArticleCollectionModel
+                {
+                    Articles = articles,
+                    PageInfo = pageInfo
+                });
+            }
+            catch (Exception ex)
             {
-                Articles = articles,
-                PageInfo = pageInfo
-            });
+                _logger.LogError(ex, ex.Message);
+                throw;
+            }
 
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details([FromRoute]Guid id)
+        public async Task<IActionResult> Details([FromRoute] Guid id)
         {
             var article = await _articleService.GetByIdAsync(id);
-            if (article!= null)
+            if (article != null)
             {
-                var model = new ArticleModel()
-                {
-                    Id = article.Id,
-                    Title = article.Title,
-                    Description = article.Description,
-                    Source = article.Source.Name,
-                    CreationDate = article.CreationDate,
-                    Rate = article.PositivityRate ?? 0
-                };
+                var model = _articleMapper.ArticleModelToArticle(article);
                 return View(model);
             }
 
@@ -87,19 +93,39 @@ namespace WebApp.MVC.Controllers
             var article = await _articleService.GetByIdAsync(id);
             if (article != null)
             {
-                var model = new ArticleModel()
-                {
-                    Id = article.Id,
-                    Title = article.Title,
-                    Description = article.Description,
-                    Source = article.Source.Name,
-                    CreationDate = article.CreationDate,
-                    Rate = article.PositivityRate ?? 0
-                };
+
+                var model = _articleMapper.ArticleModelToArticle(article);
                 return View(model);
             }
 
             return NotFound();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Aggregate()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AggregateProcessing(CancellationToken cancellationToken=default)
+        {
+            //1. Get all sources
+            var sources = await _sourceService.GetSourceWithRssAsync();
+            var newArticles = new List<Article>();
+            foreach (var source in sources)
+            {
+                var existedArticlesUrls = await _articleService.GetUniqueArticlesUrls(cancellationToken);
+                var articles = await _rssService.GetRssDataAsync(source,cancellationToken);
+                var newArticlesData = articles.Where(article => !existedArticlesUrls.Contains(article.Url)).ToArray();
+                newArticles.AddRange(newArticlesData);
+            }
+            await _articleService.AddArticlesAsync(newArticles,cancellationToken);
+
+            await _articleService.UpdateTextForArticlesByWebScrappingAsync(cancellationToken);
+            //3. web scraping for each article
+            //4. rate each article
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -119,20 +145,11 @@ namespace WebApp.MVC.Controllers
 
                 return View("Add", model);
             }
-            
-            //_articleAggregatorContext.Articles.blablalbla
-            var article = new Article()
-            {
-                Id = Guid.NewGuid(),
-                Title = model.Title,
-                Description = model.Description,
-                PositivityRate = model.Rate,
-                Content = "",
-                Url = "",
-                CreationDate = DateTime.Now,
-                SourceId = _sourceId
-            };
-            _articleService.AddArticleAsync(article);
+
+
+            var dto = _articleMapper.AddArticleModelToArticleDto(model);
+
+            await _articleService.AddArticleAsync(dto);
             return RedirectToAction("Index");
         }
 
@@ -165,5 +182,7 @@ namespace WebApp.MVC.Controllers
             var data = model;
             return Ok();
         }
+
+       
     }
 }

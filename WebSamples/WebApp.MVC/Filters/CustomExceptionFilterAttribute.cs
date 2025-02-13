@@ -7,6 +7,7 @@ public class CustomExceptionFilterAttribute : Attribute, IExceptionFilter
 {
     public void OnException(ExceptionContext context)
     {
+        //context.
         var exception = context.Exception;
         var actionName = context.ActionDescriptor.DisplayName;
         var exceptionMessage = exception.Message;
