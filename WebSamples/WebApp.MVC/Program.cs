@@ -1,14 +1,15 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using WebApp.Data;
 using WebApp.Data.CQS.Commands;
 using WebApp.MVC.Filters;
-using WebApp.MVC.Mappers;
 using WebApp.MVC.Middlewares;
 using WebApp.MVC.RouteConstraints;
 using WebApp.Services.Abstract;
 using WebApp.Services.Implementations;
+using WebApp.Services.Mappers;
 using WebApp.Services.Samples;
 
 namespace WebApp.MVC
@@ -48,6 +49,7 @@ namespace WebApp.MVC
             builder.Services.AddScoped<IArticleService, ArticleService>();
             builder.Services.AddScoped<ISourceService, SourceService>();
             builder.Services.AddScoped<IRssService, RssService>();
+            builder.Services.AddScoped<IAccountService, AccountService>();
             
             builder.Services.AddTransient<ITransientService, TransientService>();
             builder.Services.AddScoped<IScopedService, ScopedService2>();
@@ -57,6 +59,19 @@ namespace WebApp.MVC
             builder.Services.AddMediatR(sc => 
                 sc.RegisterServicesFromAssembly(typeof(AddArticlesCommand).Assembly));
             builder.Services.AddTransient<ArticleMapper>();
+            builder.Services.AddTransient<UserMapper>();
+
+            
+            
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(opt=>
+                {
+                    opt.LoginPath = "/account/login";
+                    opt.AccessDeniedPath = "/account/accessdenied";
+                    opt.LogoutPath = "/account/logout";
+                });
+            builder.Services.AddAuthorization();
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -72,7 +87,8 @@ namespace WebApp.MVC
 
             app.UseRouting();
 
-            //app.UseAuthorization();
+            app.UseAuthentication();
+            app.UseAuthorization();
             //app.Map("/", () => "Hello there");
             app.MapControllerRoute(
                 name: "default",

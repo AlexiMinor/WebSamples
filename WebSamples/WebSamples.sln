@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp.Data.CQS", "WebApp.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp.Mvc.Models", "WebApp.Mvc.Models\WebApp.Mvc.Models.csproj", "{B24B29E0-9DC6-4627-86C3-6BCB7C8364F9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5DFC2A30-0105-4DE3-8244-5393D33A8FB3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp.Services.Tests", "WebApp.Services.Tests\WebApp.Services.Tests.csproj", "{C7CFA7B5-ECD7-40F1-972C-392902C60FE3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,8 +49,15 @@ Global
 		{B24B29E0-9DC6-4627-86C3-6BCB7C8364F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B24B29E0-9DC6-4627-86C3-6BCB7C8364F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B24B29E0-9DC6-4627-86C3-6BCB7C8364F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7CFA7B5-ECD7-40F1-972C-392902C60FE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7CFA7B5-ECD7-40F1-972C-392902C60FE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7CFA7B5-ECD7-40F1-972C-392902C60FE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7CFA7B5-ECD7-40F1-972C-392902C60FE3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C7CFA7B5-ECD7-40F1-972C-392902C60FE3} = {5DFC2A30-0105-4DE3-8244-5393D33A8FB3}
 	EndGlobalSection
 EndGlobal

@@ -1,5 +1,7 @@
 using System.Diagnostics;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using WebApp.Data.CQS.Commands;
 using WebApp.MVC.Filters;
 using WebApp.MVC.Models;
 
@@ -9,19 +11,23 @@ namespace WebApp.MVC.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IConfiguration _configuration;
+        private readonly IMediator _mediator;
         
         public HomeController(ILogger<HomeController> logger, 
-            IConfiguration configuration)
+            IConfiguration configuration, IMediator mediator)
         {
             _logger = logger;
             _configuration = configuration;
+            _mediator = mediator;
         }
 
         [CustomResourceFilter]
         [WhiteSpaceRemover]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var code = _configuration["Settings:SecretCode"];
+            //todo should be moved to correct way
+             await _mediator.Send(new TryToCreateRolesIfNecessaryCommand());
             //var confSection = _configuration.GetSection("Settings");
             //var child = _configuration.GetChildren();
             

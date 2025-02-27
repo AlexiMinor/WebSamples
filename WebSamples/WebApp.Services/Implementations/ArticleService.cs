@@ -7,21 +7,20 @@ using WebApp.Data;
 using WebApp.Data.CQS.Commands;
 using WebApp.Data.CQS.Queries;
 using WebApp.Data.Entities;
-using WebApp.MVC.Mappers;
 using WebApp.Services.Abstract;
+using WebApp.Services.Mappers;
 
 namespace WebApp.Services.Implementations;
 
 public class ArticleService : IArticleService
 {
-    private readonly ArticleAggregatorContext _dbContext;
     private readonly IMediator _mediator;
     private readonly ILogger<ArticleService> _logger;
     private readonly ArticleMapper _mapper;
 
-    public ArticleService(ArticleAggregatorContext dbContext, ILogger<ArticleService> logger, IMediator mediator, ArticleMapper mapper)
+    public ArticleService(ILogger<ArticleService> logger, IMediator mediator, ArticleMapper mapper)
     {
-        _dbContext = dbContext;
+        //_dbContext = dbContext;
         _logger = logger;
         _mediator = mediator;
         _mapper = mapper;
@@ -29,45 +28,52 @@ public class ArticleService : IArticleService
 
     public async Task<ArticleDto?[]> GetAllPositiveAsync(double? minRate, int pageSize, int pageNumber, CancellationToken cancellationToken = default)
     {
+        if (pageSize < 1 || pageNumber < 1)
+        {
+            _logger.LogWarning("Page size and number must be greater than 0");
+            throw new ArgumentException("Page size and number must be greater than 0");
+        }
+
         try
         {
-            return await (await _mediator.Send(new GetPositiveArticlesWithPaginationQuery()
-            {
-                PositivityRate = minRate,
-                Page = pageNumber,
-                PageSize = pageSize
-            }, cancellationToken)).Select(article => _mapper.ArticleToArticleDto(article))
-            .ToArrayAsync(cancellationToken);
+            return (await _mediator.Send(new GetPositiveArticlesWithPaginationQuery()
+                {
+                    PositivityRate = minRate,
+                    Page = pageNumber,
+                    PageSize = pageSize
+                }, cancellationToken))
+                .Select(article => _mapper.ArticleToArticleDto(article))
+                .ToArray();
+
         }
         catch (Exception e)
         {
             _logger.LogError(e, "An error occurred while fetching articles");
             throw;
         }
+
+        throw new ArgumentException("Page size and number must be greater than 0");
     }
 
-    public async Task<Article?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ArticleDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Articles
-            .AsNoTracking()
-            .Include(article => article.Source)
-            .FirstOrDefaultAsync(article => article.Id.Equals(id), cancellationToken);
+        return _mapper.ArticleToArticleDto(await _mediator.Send(new GetArticleByIdQuery()
+            {
+                Id = id
+            }, cancellationToken));
     }
 
     public async Task<int> CountAsync(double minRate, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Articles
-            .AsNoTracking()
-            .CountAsync(cancellationToken);
+        return await _mediator.Send(new GetArticlesCountByPositivityRateQuery()
+        {
+            PositivityRate = 0.0
+        }, cancellationToken);
     }
 
     public async Task<string[]> GetUniqueArticlesUrls(CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Articles
-            .AsNoTracking()
-            .Select(article => article.Url)
-            .Distinct()
-            .ToArrayAsync(cancellationToken);
+        return await _mediator.Send(new GetUniqueArticlesUrlsQuery(), cancellationToken);
     }
 
     public async Task AddArticlesAsync(IEnumerable<Article> newUniqueArticles, CancellationToken cancellationToken = default)
@@ -80,15 +86,10 @@ public class ArticleService : IArticleService
         var article = _mapper.ArticleDtoToArticle(articleDto);
         article.Id = Guid.NewGuid();
 
-        //todo add mediator & command
-        await _dbContext.Articles.AddAsync(article, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task UpdateContentByWebScrappingAsync(Guid[] ids, CancellationToken token = default)
-    {
-
-
+        await _mediator.Send(new AddArticleCommand()
+        {
+            Article = article
+        }, cancellationToken);
     }
 
     public async Task UpdateTextForArticlesByWebScrappingAsync(CancellationToken cancellationToken = default)
@@ -99,9 +100,10 @@ public class ArticleService : IArticleService
         var dictionary = new Dictionary<Guid, string>();
         foreach (var id in ids)
         {
-            var article = await _dbContext.Articles
-                .AsNoTracking()
-                .FirstOrDefaultAsync(ar => ar.Id.Equals(id), cancellationToken);
+            var article = await _mediator.Send(new GetArticleByIdQuery()
+            {
+                Id = id
+            }, cancellationToken);
             if (article == null || string.IsNullOrWhiteSpace(article.Url))
             {
                 _logger.LogWarning("Article with id {id} not found or has no url", id);

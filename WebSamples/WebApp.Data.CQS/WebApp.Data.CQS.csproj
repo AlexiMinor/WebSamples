@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WebApp.Core\WebApp.Core.csproj" />
     <ProjectReference Include="..\WebApp.Data\WebApp.Data.csproj" />
   </ItemGroup>
 

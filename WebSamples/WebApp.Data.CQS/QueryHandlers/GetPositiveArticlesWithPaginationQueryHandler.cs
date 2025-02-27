@@ -5,7 +5,7 @@ using WebApp.Data.Entities;
 
 namespace WebApp.Data.CQS.QueryHandlers;
 
-public class GetPositiveArticlesWithPaginationQueryHandler : IRequestHandler<GetPositiveArticlesWithPaginationQuery, IQueryable<Article>> //IQuery<Guid[]>
+public class GetPositiveArticlesWithPaginationQueryHandler : IRequestHandler<GetPositiveArticlesWithPaginationQuery, Article[]> //IQuery<Guid[]>
 {
     private readonly ArticleAggregatorContext _dbContext;
 
@@ -14,9 +14,9 @@ public class GetPositiveArticlesWithPaginationQueryHandler : IRequestHandler<Get
         _dbContext = dbContext;
     }
 
-    public async Task<IQueryable<Article>> Handle(GetPositiveArticlesWithPaginationQuery request, CancellationToken cancellationToken)
+    public async Task<Article[]> Handle(GetPositiveArticlesWithPaginationQuery request, CancellationToken cancellationToken)
     {
-        var result = _dbContext.Articles
+        var result = await _dbContext.Articles
             .AsNoTracking()
             //todo fix this when rating will be there
             .Where(article => article.PositivityRate >= request.PositivityRate || !article.PositivityRate.HasValue)
@@ -24,7 +24,7 @@ public class GetPositiveArticlesWithPaginationQueryHandler : IRequestHandler<Get
             .OrderByDescending(article => article.CreationDate)
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
-            .AsQueryable();
+            .ToArrayAsync(cancellationToken);
 
         return result;
     }

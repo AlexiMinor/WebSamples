@@ -11,26 +11,11 @@
     <a class="btn btn-warning" asp-action="Aggregate">Aggregate</a>
 </div>
 
-@foreach (var article in Model.Articles)
-{
-    <div>
-        <div>
-            <h3>@article.Title</h3>
-            <h5>@article.CreationDate</h5>
-        </div>
-        <div>
-            <img src="@article.ImageUrl" width="400"/>
-        </div>
-        <div>
-           @Html.Raw(article.Description)
-            <a asp-action="Details" asp-route-id="@article.Id">Read details</a>
-        </div>
-        <div>
-            <h6>@article.Source</h6>
-            <span>Rate: @article.Rate</span>
-        </div>
-    </div>
-    <hr />
-}
+<div class="row">
+    @foreach (var article in Model.Articles)
+    {
+        <partial name="ArticlePreview" model="article" />
+    }
+</div>
 @* <pagination page-info="@Model.PageInfo" page-action="index"/> *@
 <pagination page-action="index" page-info="@Model.PageInfo"></pagination>

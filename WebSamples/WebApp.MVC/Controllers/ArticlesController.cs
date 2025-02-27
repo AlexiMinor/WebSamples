@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Serilog;
-using WebApp.Data;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebApp.Data.Entities;
 using WebApp.MVC.Filters;
-using WebApp.MVC.Mappers;
 using WebApp.MVC.Models;
 using WebApp.Services.Abstract;
+using WebApp.Services.Mappers;
 
 namespace WebApp.MVC.Controllers
 {
+    [Authorize(Roles = "User, Admin")]
     public class ArticlesController : Controller
     {
         
@@ -74,40 +74,42 @@ namespace WebApp.MVC.Controllers
 
         }
 
+        //[HttpGet]
+        //public async Task<IActionResult> Details([FromRoute] Guid id)
+        //{
+        //    var article = await _articleService.GetByIdAsync(id);
+        //    if (article != null)
+        //    {
+        //        var model = _articleMapper.ArticleToArticleModel(article);
+        //        return View(model);
+        //    }
+
+        //    return NotFound();
+        //}
+
+        //[HttpGet]
+        //public async Task<IActionResult> Details2([FromRoute] Guid id)
+        //{
+        //    //var article = await _articleService.GetByIdAsync(id);
+        //    //if (article != null)
+        //    //{
+
+        //    //    var model = _articleMapper.ArticleToArticleModel(article);
+        //    //    return View(model);
+        //    //}
+
+        //    //return NotFound();
+        //}
+
         [HttpGet]
-        public async Task<IActionResult> Details([FromRoute] Guid id)
-        {
-            var article = await _articleService.GetByIdAsync(id);
-            if (article != null)
-            {
-                var model = _articleMapper.ArticleModelToArticle(article);
-                return View(model);
-            }
-
-            return NotFound();
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Details2([FromRoute] Guid id)
-        {
-            var article = await _articleService.GetByIdAsync(id);
-            if (article != null)
-            {
-
-                var model = _articleMapper.ArticleModelToArticle(article);
-                return View(model);
-            }
-
-            return NotFound();
-        }
-
-        [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Aggregate()
         {
             return View();
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AggregateProcessing(CancellationToken cancellationToken=default)
         {
             //1. Get all sources
@@ -153,28 +155,28 @@ namespace WebApp.MVC.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Edit(Guid id)
-        {
-            var article = await _articleService.GetByIdAsync(id);
-            if (article != null)
-            {
-                var model = new ArticleModel()
-                {
-                    Id = article.Id,
-                    Title = article.Title,
-                    Description = article.Description,
-                    Source = article.Source.Name,
-                    CreationDate = article.CreationDate,
-                    Rate = article.PositivityRate ?? 0
-                };
-                return View(model);
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
+        //[HttpGet]
+        //public async Task<IActionResult> Edit(Guid id)
+        //{
+        //    var article = await _articleService.GetByIdAsync(id);
+        //    if (article != null)
+        //    {
+        //        var model = new ArticleModel()
+        //        {
+        //            Id = article.Id,
+        //            Title = article.Title,
+        //            Description = article.Description,
+        //            Source = article.Source.Name,
+        //            CreationDate = article.CreationDate,
+        //            Rate = article.PositivityRate ?? 0
+        //        };
+        //        return View(model);
+        //    }
+        //    else
+        //    {
+        //        return NotFound();
+        //    }
+        //}
 
         [HttpPost]
         public async Task<IActionResult> Edit(ArticleModel model)

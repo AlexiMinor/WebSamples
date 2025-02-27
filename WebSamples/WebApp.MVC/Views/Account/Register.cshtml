@@ -1,0 +1,27 @@
+﻿@model RegistrationModel
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<div class="row">
+    <form class="col-12" asp-action="Register" asp-controller="Account" method="post">
+        <span asp-validation-summary></span>
+        <div>
+            <label asp-for="Email">Email:</label>
+            <input asp-for="Email" class="form-control"/>
+        </div>
+        <div>
+            <label asp-for="Password">Password:</label>
+            <input asp-for="Password" class="form-control" type="password"/>
+        </div>
+        <div>
+            <label asp-for="PasswordConfirmation">Password confirmation:</label>
+            <input asp-for="PasswordConfirmation" class="form-control" type="password"/>
+        </div>
+        <br/>
+        <div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </div>
+    </form>
+</div>
