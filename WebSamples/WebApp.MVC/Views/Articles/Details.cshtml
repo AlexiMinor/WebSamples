@@ -1,4 +1,4 @@
-﻿@model ArticleModel
+﻿@model WebApp.Mvc.Models.Models.ArticleModel
 
 @{
     ViewBag.Title = "Article";
@@ -13,4 +13,51 @@
     <p>@Model.Description</p>
 </div>
 
+<div>
+    @Model.Text
+</div>
+<br />
+<div>
+    <button class="btn btn-primary" type="button" onclick="writeComment()">
+        Add comment
+    </button>
+</div>
+<br />
 
+<div id="comment-section" class="hidden">
+    <h3>Comments</h3>
+    <div class="comments">
+    </div>
+</div>
+
+<div class="modal" id="create-commend-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Write comment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <label name="author" class="form-label">Author</label>
+                    <input type="text" class="form-control" id="author-input" placeholder="author" name="author">
+                </div>
+                <div>
+                    <label name="content" class="form-label">Content</label>
+                    <input type="text" class="form-control" id="content-input" placeholder="content" name="content">
+                </div>
+                <br />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="create-comment-btn">Submit</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <script src="~/js/comments.js" asp-append-version="true"></script>
+}

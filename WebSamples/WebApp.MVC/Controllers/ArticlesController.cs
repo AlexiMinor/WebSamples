@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using WebApp.Data.Entities;
 using WebApp.MVC.Filters;
 using WebApp.MVC.Models;
+using WebApp.Mvc.Models.Models;
 using WebApp.Services.Abstract;
 using WebApp.Services.Mappers;
 
@@ -74,18 +76,18 @@ namespace WebApp.MVC.Controllers
 
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Details([FromRoute] Guid id)
-        //{
-        //    var article = await _articleService.GetByIdAsync(id);
-        //    if (article != null)
-        //    {
-        //        var model = _articleMapper.ArticleToArticleModel(article);
-        //        return View(model);
-        //    }
+        [HttpGet]
+        public async Task<IActionResult> Details([FromRoute] Guid id)
+        {
+            var article = await _articleService.GetByIdAsync(id);
+            if (article != null)
+            {
+                var model = _articleMapper.ArticleDtoToArticleModel(article);
+                return View(model);
+            }
 
-        //    return NotFound();
-        //}
+            return NotFound();
+        }
 
         //[HttpGet]
         //public async Task<IActionResult> Details2([FromRoute] Guid id)
@@ -131,8 +133,12 @@ namespace WebApp.MVC.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Add(AddArticleModel? model)
+        public async Task<IActionResult> Add()
         {
+            var model = new AddArticleModel()
+            {
+                Sources = new SelectList(await _sourceService.GetSourceWithRssAsync(), nameof(Source.Id), nameof(Source.Name))
+            };
             return View(model);
         }
 

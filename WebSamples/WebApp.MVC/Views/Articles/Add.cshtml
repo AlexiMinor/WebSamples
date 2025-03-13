@@ -25,5 +25,9 @@
         <input asp-for="Rate" type="number"/>
         <span asp-validation-for="Rate"></span>
     </div>
+    <input asp-for="Sources" type="hidden"/>
+    <div>
+        <select asp-for="SourceId" asp-items="Model.Sources"></select>
+    </div>
     <input type="submit" text="Submit"/>
 </form>

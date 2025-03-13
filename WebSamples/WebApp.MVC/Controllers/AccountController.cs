@@ -18,25 +18,28 @@ namespace WebApp.MVC.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string? returnUrl = null)
         {
+            var loginModel = new LoginModel
+            {
+                ReturnUrl = returnUrl
+            };
             return View();
         }
         
         [HttpPost]
-        public async Task<IActionResult> Login(LoginModel model)
+        public async Task<IActionResult> Login([FromForm] LoginModel model)
         {
-            //todo : authenticate user
             if (ModelState.IsValid)
             {
+                var redirectUrl = model.ReturnUrl ?? Url.Action("Index", "Home");
                 var loginData = await _accountService.TryToLogin(model.Email, model.Password);
 
                 if (loginData != null)
                 {
-                    //todo authorize user
-                   
-                    
-                    return RedirectToAction("Index", "Home");
+                    await SignIn(loginData);
+
+                    return LocalRedirect(redirectUrl);
                 }
                 ModelState.AddModelError("","Incorrect login or password");
             }

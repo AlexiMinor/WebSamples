@@ -6,6 +6,7 @@
 
 <div class="row">
     <form class="col-12" asp-action="Login" asp-controller="Account" method="post">
+        <input asp-for="ReturnUrl" type="hidden"/>
         <span asp-validation-summary></span>
         <div>
             <label asp-for="Email">Email:</label>

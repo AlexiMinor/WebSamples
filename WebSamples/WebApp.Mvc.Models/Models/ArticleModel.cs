@@ -1,4 +1,4 @@
-﻿namespace WebApp.MVC.Models;
+﻿namespace WebApp.Mvc.Models.Models;
 
 public class ArticleModel
 {
@@ -9,4 +9,5 @@ public class ArticleModel
     public DateTime CreationDate { get; set; }
     public string Source { get; set; }
     public double Rate { get; set; }
+    public string Text { get; set; }
 }

@@ -28,3 +28,7 @@ body {
 .article-preview-card{
     background-color: lightblue !important;
 }
+
+.hidden {
+    display: none;
+}

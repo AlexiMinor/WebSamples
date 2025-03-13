@@ -19,6 +19,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5DFC2A30
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp.Services.Tests", "WebApp.Services.Tests\WebApp.Services.Tests.csproj", "{C7CFA7B5-ECD7-40F1-972C-392902C60FE3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp.MVC.Identity", "WebApp.MVC.Identity\WebApp.MVC.Identity.csproj", "{D33CD561-4219-4313-8A14-01C2EF64B183}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp.Identity.MVC", "WebApp.Identity.MVC\WebApp.Identity.MVC.csproj", "{CFFDC2E8-0781-41EB-99E0-3F3C93DDFBAF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +57,14 @@ Global
 		{C7CFA7B5-ECD7-40F1-972C-392902C60FE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7CFA7B5-ECD7-40F1-972C-392902C60FE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7CFA7B5-ECD7-40F1-972C-392902C60FE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D33CD561-4219-4313-8A14-01C2EF64B183}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D33CD561-4219-4313-8A14-01C2EF64B183}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D33CD561-4219-4313-8A14-01C2EF64B183}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D33CD561-4219-4313-8A14-01C2EF64B183}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFFDC2E8-0781-41EB-99E0-3F3C93DDFBAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFFDC2E8-0781-41EB-99E0-3F3C93DDFBAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFFDC2E8-0781-41EB-99E0-3F3C93DDFBAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFFDC2E8-0781-41EB-99E0-3F3C93DDFBAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

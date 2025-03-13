@@ -1,4 +1,6 @@
-﻿namespace WebApp.MVC.Models;
+﻿using WebApp.Mvc.Models.Models;
+
+namespace WebApp.MVC.Models;
 
 public class ArticleCollectionModel
 {

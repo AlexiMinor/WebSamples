@@ -1,13 +1,13 @@
-﻿@model ArticleModel
+﻿@model WebApp.Mvc.Models.Models.ArticleModel
 
 
 <div class="card col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 mt-3 mb-3 m-5 article-preview-card article-preview" style="background-color:white !important;">
     <img src="@Model.ImageUrl" class="card-img-top" alt="Article picture">
     <div class="card-body">
         <h5 class="card-title">@Model.Title</h5>
-        <p class="card-text">@Html.Raw(Model.Description)</p>
-        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-primary">Read details</a>
-    </div><a href="c:\users\aleximinor\desktop\itacademy-samples\websamples\webapp.mvc\controllers\bookcontroller.cs">c:\users\aleximinor\desktop\itacademy-samples\websamples\webapp.mvc\controllers\bookcontroller.cs</a>
+        <p class="card-text">Model.Description</p>
+        <a asp-action="Details" asp-controller="Articles" asp-route-id="@Model.Id" class="btn btn-primary">Read details</a>
+    </div>
     <div class="card-footer text-muted">
         @Model.CreationDate
     </div>
