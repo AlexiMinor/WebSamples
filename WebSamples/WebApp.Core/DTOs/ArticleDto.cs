@@ -11,5 +11,5 @@ public class ArticleDto
     public double? PositivityRate { get; set; }
     public DateTime CreationDate { get; set; }
     public Guid SourceId { get; set; }
-    public string SourceName { get; set; }
+    public string? SourceName { get; set; }
 }

@@ -1,9 +1,8 @@
-﻿using HtmlAgilityPack;
+﻿using System.Collections.Concurrent;
+using HtmlAgilityPack;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using WebApp.Core.DTOs;
-using WebApp.Data;
 using WebApp.Data.CQS.Commands;
 using WebApp.Data.CQS.Queries;
 using WebApp.Data.Entities;
@@ -16,14 +15,22 @@ public class ArticleService : IArticleService
 {
     private readonly IMediator _mediator;
     private readonly ILogger<ArticleService> _logger;
+    private readonly ISourceService _sourceService;
+    private readonly IHtmlRemoverService _htmlRemover;
+    private readonly IRssService _rssService;
+    private readonly IRateService _rateService;
     private readonly ArticleMapper _mapper;
 
-    public ArticleService(ILogger<ArticleService> logger, IMediator mediator, ArticleMapper mapper)
+    public ArticleService(ILogger<ArticleService> logger, IMediator mediator, ArticleMapper mapper, ISourceService sourceService, IRssService rssService, IRateService rateService, IHtmlRemoverService htmlRemover)
     {
         //_dbContext = dbContext;
         _logger = logger;
         _mediator = mediator;
         _mapper = mapper;
+        _sourceService = sourceService;
+        _rssService = rssService;
+        _rateService = rateService;
+        _htmlRemover = htmlRemover;
     }
 
     public async Task<ArticleDto?[]> GetAllPositiveAsync(double? minRate, int pageSize, int pageNumber, CancellationToken cancellationToken = default)
@@ -92,6 +99,20 @@ public class ArticleService : IArticleService
         }, cancellationToken);
     }
 
+    public async Task AggregateArticleInfoFromSourcesByRssAsync(CancellationToken cancellationToken = default)
+    {
+        var sources = await _sourceService.GetSourceWithRssAsync(cancellationToken);
+        var newArticles = new List<Article>();
+        foreach (var source in sources)
+        {
+            var existedArticlesUrls = await GetUniqueArticlesUrls(cancellationToken);
+            var articles = await _rssService.GetRssDataAsync(source.RssUrl, source.Id, cancellationToken);
+            var newArticlesData = articles.Where(article => !existedArticlesUrls.Contains(article.Url)).ToArray();
+            newArticles.AddRange(newArticlesData);
+        }
+        await AddArticlesAsync(newArticles, cancellationToken);
+    }
+    
     public async Task UpdateTextForArticlesByWebScrappingAsync(CancellationToken cancellationToken = default)
     {
         var ids = await _mediator.Send(new GetIdsForArticlesWithNoTextQuery(), cancellationToken);
@@ -129,5 +150,36 @@ public class ArticleService : IArticleService
         {
             Data = dictionary
         }, cancellationToken);
+    }
+
+    public async Task RateUnratedArticles(CancellationToken cancellationToken = default)
+    {
+        var articlesWithNoRate = await GetArticlesWithoutRate();
+        var dictionary = new ConcurrentDictionary<Guid, double?>();
+
+        await Parallel.ForEachAsync(articlesWithNoRate, cancellationToken, async (dto, token) =>
+        {
+            var contentForLegitimization = _htmlRemover.RemoveHtmlTags(dto.Content);
+            var rate = await _rateService.GetRateAsync(contentForLegitimization, token);
+            dictionary.TryAdd(dto.Id, rate);
+
+        });
+        //foreach (var article in articlesWithNoRate)
+        //{
+        //    var contentForLegitimization = _htmlRemover.RemoveHtmlTags(article.Content);
+        //    var rate = await _rateService.GetRateAsync(contentForLegitimization, cancellationToken);
+        //}
+        
+        await _mediator.Send(new UpdateRateForArticlesCommand() { 
+            Data = dictionary
+                .Where(pair => pair.Value.HasValue)
+                .Select(pair => new KeyValuePair<Guid, double>(pair.Key, pair.Value.Value)).ToDictionary() }, 
+            cancellationToken);
+    }
+
+    private async Task<ArticleDto[]> GetArticlesWithoutRate()
+    {
+        var articles = await _mediator.Send(new GetArticlesWithoutRateQuery());
+        return articles.Select(article => _mapper.ArticleToArticleDto(article)).ToArray();
     }
 }

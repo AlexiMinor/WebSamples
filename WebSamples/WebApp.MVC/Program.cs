@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -61,8 +62,17 @@ namespace WebApp.MVC
             builder.Services.AddTransient<ArticleMapper>();
             builder.Services.AddTransient<UserMapper>();
 
-            
-            
+
+            builder.Services.AddHangfire(configuration => configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(builder.Configuration.GetConnectionString("Hangfire"))
+
+            );
+            builder.Services.AddHangfireServer();
+
+
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(opt=>
                 {
@@ -95,6 +105,8 @@ namespace WebApp.MVC
                 //pattern: "{token:secretCode(234)}/{controller=Home}/{action=Index}/{id?}"
                 pattern: "{controller=Home}/{action=Index}/{id?}"
                 );
+            app.UseHangfireDashboard();
+
             //app.MapControllerRoute(
             //    "myCustomRouting",
             //    "{action=Index}/{controller=Home}/{name?}"

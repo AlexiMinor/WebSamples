@@ -10,7 +10,7 @@ using WebApp.Services.Mappers;
 
 namespace WebApp.MVC.Controllers
 {
-    [Authorize(Roles = "User, Admin")]
+    //[Authorize(Roles = "User, Admin")]
     public class ArticlesController : Controller
     {
         
@@ -104,33 +104,33 @@ namespace WebApp.MVC.Controllers
         //}
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> Aggregate()
         {
             return View();
         }
 
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> AggregateProcessing(CancellationToken cancellationToken=default)
-        {
-            //1. Get all sources
-            var sources = await _sourceService.GetSourceWithRssAsync();
-            var newArticles = new List<Article>();
-            foreach (var source in sources)
-            {
-                var existedArticlesUrls = await _articleService.GetUniqueArticlesUrls(cancellationToken);
-                var articles = await _rssService.GetRssDataAsync(source,cancellationToken);
-                var newArticlesData = articles.Where(article => !existedArticlesUrls.Contains(article.Url)).ToArray();
-                newArticles.AddRange(newArticlesData);
-            }
-            await _articleService.AddArticlesAsync(newArticles,cancellationToken);
+        //[HttpPost]
+        ////[Authorize(Roles = "Admin")]
+        //public async Task<IActionResult> AggregateProcessing(CancellationToken cancellationToken=default)
+        //{
+        //    //1. Get all sources
+        //    var sources = await _sourceService.GetSourceWithRssAsync();
+        //    var newArticles = new List<Article>();
+        //    foreach (var source in sources)
+        //    {
+        //        var existedArticlesUrls = await _articleService.GetUniqueArticlesUrls(cancellationToken);
+        //        var articles = await _rssService.GetRssDataAsync(source,cancellationToken);
+        //        var newArticlesData = articles.Where(article => !existedArticlesUrls.Contains(article.Url)).ToArray();
+        //        newArticles.AddRange(newArticlesData);
+        //    }
+        //    await _articleService.AddArticlesAsync(newArticles,cancellationToken);
 
-            await _articleService.UpdateTextForArticlesByWebScrappingAsync(cancellationToken);
-            //3. web scraping for each article
-            //4. rate each article
-            return RedirectToAction("Index");
-        }
+        //    await _articleService.UpdateTextForArticlesByWebScrappingAsync(cancellationToken);
+        //    //3. web scraping for each article
+        //    //4. rate each article
+        //    return RedirectToAction("Index");
+        //}
 
         [HttpGet]
         public async Task<IActionResult> Add()

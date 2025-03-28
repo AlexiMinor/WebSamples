@@ -1,9 +1,9 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using WebApp.Data;
 using WebApp.Data.CQS.Queries;
 using WebApp.Data.Entities;
+using WebApp.Services.Abstract;
 using WebApp.Services.Implementations;
 using WebApp.Services.Mappers;
 
@@ -113,13 +113,16 @@ namespace WebApp.Services.Tests
         private IMediator mediatorMock;
         private ILogger<ArticleService> loggerMock;
         private ArticleService articleService;
-
+        private ISourceService _sourceServiceMock;
+        private IRssService _rssServiceMock;
 
         private void PrepareArticleService()
         {
             mediatorMock = Substitute.For<IMediator>();
+            _rssServiceMock = Substitute.For<IRssService>();
+            _sourceServiceMock = Substitute.For<ISourceService>();
             loggerMock = Substitute.For<ILogger<ArticleService>>();
-            articleService = new ArticleService(loggerMock, mediatorMock, new ArticleMapper());
+            articleService = new ArticleService(loggerMock, mediatorMock, new ArticleMapper(), _sourceServiceMock, _rssServiceMock);
         }
 
 

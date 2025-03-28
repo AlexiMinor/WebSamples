@@ -18,11 +18,18 @@ public class SourceService : ISourceService
     }
 
 
-    public async Task<Source[]> GetSourceWithRssAsync()
+    public async Task<Source?[]> GetSourceWithRssAsync(CancellationToken cancellationToken=default)
     {
         return await _dbContext.Sources
             .AsNoTracking()
             .Where(source => !string.IsNullOrWhiteSpace(source.RssUrl))
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken: cancellationToken);
+    }
+
+    public async Task<Source?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Sources
+            .AsNoTracking()
+            .FirstOrDefaultAsync(source => source.Id == id, cancellationToken);
     }
 }

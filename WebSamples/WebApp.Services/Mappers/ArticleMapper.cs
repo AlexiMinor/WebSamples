@@ -1,4 +1,5 @@
-﻿using Riok.Mapperly.Abstractions;
+﻿using System.Diagnostics.CodeAnalysis;
+using Riok.Mapperly.Abstractions;
 using WebApp.Core.DTOs;
 using WebApp.Data.Entities;
 using WebApp.MVC.Models;
@@ -30,6 +31,7 @@ public partial class ArticleMapper
     public partial IQueryable<ArticleDto> QueryableProjectionToDto(IQueryable<Article> articles);
 
     [MapProperty($"{nameof(Article.Source)}.{nameof(Article.Source.Name)}", nameof(ArticleDto.SourceName))]
+    
     public partial ArticleDto ArticleToArticleDto(Article? article);
 
 }

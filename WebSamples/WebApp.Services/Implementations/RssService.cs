@@ -1,29 +1,37 @@
-﻿using System.Net.Http;
-using System.Security.Cryptography;
-using System.ServiceModel.Syndication;
+﻿using System.ServiceModel.Syndication;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
+using WebApp.Core.DTOs;
 using WebApp.Data.Entities;
 using WebApp.Services.Abstract;
+using WebApp.Services.Mappers;
 
 namespace WebApp.Services.Implementations;
 
 public class RssService : IRssService
 {
-    public async Task<Article[]> GetRssDataAsync(Source rss, CancellationToken token = default)
+    private readonly ArticleMapper _articleMapper;
+
+    public RssService(ArticleMapper articleMapper)
     {
-        if (string.IsNullOrEmpty(rss.RssUrl))
+        _articleMapper = articleMapper;
+    }
+
+    public async Task<Article[]> GetRssDataAsync(string rssUrl, Guid rssId, CancellationToken token = default)
+    {
+        if (string.IsNullOrEmpty(rssUrl))
         {
-            throw new ArgumentNullException(nameof(rss.RssUrl));
+            throw new ArgumentNullException(nameof(rssUrl));
         }
     
-        using (var xmlReader = XmlReader.Create(rss.RssUrl))
+        using (var xmlReader = XmlReader.Create(rssUrl))
         {
             var syndicationFeed = SyndicationFeed.Load(xmlReader);
 
             var articles = syndicationFeed.Items
-                .Select(item => GetArticleFromSyndicationItem(item, rss.Id)).ToArray();
+                .Select(item => GetArticleFromSyndicationItem(item, rssId))
+                .ToArray();
             return articles;
         }
     }
@@ -68,17 +76,3 @@ public class RssService : IRssService
         return (imageUrl, text.ToString());
     }
 }
-
-/*
- * <p>
- * <a href="https://money.onliner.by/2025/02/06/perevod-iz-za-granicy">
- * <img src="https://content.onliner.by/news/thumbnail/ca62ddf0ce891b231970152539779c9f.jpg" alt="" />
- * </a>
- * </p>
- * <p>
- * Читатель Максим на днях получил международный перевод за рекламу на YouTube. За него надо было заплатить комиссию, которой он не ожидал.
- * </p>
- * <p>
- * <a href="https://money.onliner.by/2025/02/06/perevod-iz-za-granicy">Читать далее…</a>
- * </p>
- */

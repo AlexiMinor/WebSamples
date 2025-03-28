@@ -14,5 +14,9 @@ public interface IArticleService
 
     public Task AddArticlesAsync(IEnumerable<Article> newUniqueArticles, CancellationToken cancellationToken = default);
 
-    public Task UpdateTextForArticlesByWebScrappingAsync(CancellationToken cancellationToken);
+    public Task UpdateTextForArticlesByWebScrappingAsync(CancellationToken cancellationToken = default);
+
+    public Task AggregateArticleInfoFromSourcesByRssAsync(CancellationToken cancellationToken = default);
+
+    public Task RateUnratedArticles(CancellationToken cancellationToken = default);
 }
