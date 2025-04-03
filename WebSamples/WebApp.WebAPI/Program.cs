@@ -1,6 +1,9 @@
 using System.Reflection;
+using System.Text;
 using Hangfire;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using WebApp.Data;
 using WebApp.Data.CQS.Commands;
@@ -23,12 +26,34 @@ namespace WebApp.WebAPI
             builder.Services.AddDbContext<ArticleAggregatorContext>(
                 opt =>
                     opt.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+            var jwtIss = builder.Configuration["Jwt:Iss"];
+            var jwtAud = builder.Configuration["Jwt:Aud"];
+            var jwtKey = builder.Configuration["Jwt:Secret"];
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtIss,
+                        ValidAudience = jwtAud,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                    };
+                });
+            builder.Services.AddAuthorization();
+
             builder.Services.AddSerilog();
             builder.Services.AddScoped<IArticleService, ArticleService>();
             builder.Services.AddScoped<ISourceService, SourceService>();
             builder.Services.AddScoped<IRssService, RssService>();
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IRateService, RateService>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IHtmlRemoverService, HtmlRemoverService>();
 
             builder.Services.AddHangfire(configuration => configuration
@@ -67,7 +92,7 @@ namespace WebApp.WebAPI
             app.UseHangfireDashboard();
             app.UseHttpsRedirection();
 
-            //app.UseAuthentication();
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
@@ -75,5 +100,7 @@ namespace WebApp.WebAPI
 
             app.Run();
         }
+
+
     }
 }

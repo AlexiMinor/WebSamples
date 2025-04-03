@@ -20,7 +20,7 @@ public class AccountService : IAccountService
         _mapper = mapper;
     }
 
-    public async Task<LoginDto> TryToLogin(string modelEmail, string modelPassword)
+    public async Task<LoginDto> TryToLoginAsync(string modelEmail, string modelPassword)
     {
         var passwordHash = GetHash(modelPassword);
         var result = await _mediator.Send(new TryLoginQuery()

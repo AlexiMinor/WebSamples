@@ -51,6 +51,8 @@ namespace WebApp.MVC
             builder.Services.AddScoped<ISourceService, SourceService>();
             builder.Services.AddScoped<IRssService, RssService>();
             builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IRateService, RateService>();
+            builder.Services.AddScoped<IHtmlRemoverService, HtmlRemoverService>();
             
             builder.Services.AddTransient<ITransientService, TransientService>();
             builder.Services.AddScoped<IScopedService, ScopedService2>();

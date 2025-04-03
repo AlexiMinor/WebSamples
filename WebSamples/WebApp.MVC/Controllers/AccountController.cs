@@ -33,7 +33,7 @@ namespace WebApp.MVC.Controllers
             if (ModelState.IsValid)
             {
                 var redirectUrl = model.ReturnUrl ?? Url.Action("Index", "Home");
-                var loginData = await _accountService.TryToLogin(model.Email, model.Password);
+                var loginData = await _accountService.TryToLoginAsync(model.Email, model.Password);
 
                 if (loginData != null)
                 {

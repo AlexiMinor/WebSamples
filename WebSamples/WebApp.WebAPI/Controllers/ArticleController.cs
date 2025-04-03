@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Core.DTOs;
 using WebApp.Services.Abstract;
@@ -54,6 +55,7 @@ namespace WebApp.WebAPI.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetArticles(int? minRate, int pageSize = 15, int pageNumber = 1, CancellationToken cancellationToken = default)
         {
             var articles = await _articleService.GetAllPositiveAsync(minRate, pageSize, pageNumber, cancellationToken);

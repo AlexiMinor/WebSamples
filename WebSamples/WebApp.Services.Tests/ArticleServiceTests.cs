@@ -115,14 +115,18 @@ namespace WebApp.Services.Tests
         private ArticleService articleService;
         private ISourceService _sourceServiceMock;
         private IRssService _rssServiceMock;
+        private IRateService _rateServiceMock;
+        private IHtmlRemoverService _htmlRemoverMock;
 
         private void PrepareArticleService()
         {
             mediatorMock = Substitute.For<IMediator>();
             _rssServiceMock = Substitute.For<IRssService>();
             _sourceServiceMock = Substitute.For<ISourceService>();
+            _rateServiceMock = Substitute.For<IRateService>();
+_htmlRemoverMock= Substitute.For<IHtmlRemoverService>();
             loggerMock = Substitute.For<ILogger<ArticleService>>();
-            articleService = new ArticleService(loggerMock, mediatorMock, new ArticleMapper(), _sourceServiceMock, _rssServiceMock);
+            articleService = new ArticleService(loggerMock, mediatorMock, new ArticleMapper(), _sourceServiceMock, _rssServiceMock, _rateServiceMock, _htmlRemoverMock);
         }
 
 
