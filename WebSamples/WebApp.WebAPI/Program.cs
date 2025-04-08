@@ -1,15 +1,12 @@
 using System.Reflection;
-using System.Text;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using WebApp.Data;
-using WebApp.Data.CQS.Commands;
-using WebApp.Services.Abstract;
-using WebApp.Services.Implementations;
-using WebApp.Services.Mappers;
+using WebApp.WebAPI.Filters;
+using WebApp.WebAPI.Infrastructure;
 
 namespace WebApp.WebAPI
 {
@@ -27,34 +24,13 @@ namespace WebApp.WebAPI
                 opt =>
                     opt.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
-            var jwtIss = builder.Configuration["Jwt:Iss"];
-            var jwtAud = builder.Configuration["Jwt:Aud"];
-            var jwtKey = builder.Configuration["Jwt:Secret"];
-
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = jwtIss,
-                        ValidAudience = jwtAud,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-                    };
-                });
-            builder.Services.AddAuthorization();
-
             builder.Services.AddSerilog();
-            builder.Services.AddScoped<IArticleService, ArticleService>();
-            builder.Services.AddScoped<ISourceService, SourceService>();
-            builder.Services.AddScoped<IRssService, RssService>();
-            builder.Services.AddScoped<IAccountService, AccountService>();
-            builder.Services.AddScoped<IRateService, RateService>();
-            builder.Services.AddScoped<ITokenService, TokenService>();
-            builder.Services.AddScoped<IHtmlRemoverService, HtmlRemoverService>();
+            
+            builder.Services.RegisterArticlesAggregatorServices();
+            
+            builder.Services.RegisterMediator();
+            builder.Services.RegisterMappers();
+            builder.Services.RegisterJwtAuthorization(builder.Configuration);
 
             builder.Services.AddHangfire(configuration => configuration
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -64,14 +40,7 @@ namespace WebApp.WebAPI
             
                 );
             builder.Services.AddHangfireServer();
-
-            builder.Services.AddMediatR(sc =>
-                sc.RegisterServicesFromAssembly(typeof(AddArticlesCommand).Assembly));
-            builder.Services.AddTransient<ArticleMapper>();
-            builder.Services.AddTransient<UserMapper>();
-
-            //builder.Services.AddAuthentication();
-            //builder.Services.AddAuthorization();
+            builder.Services.AddHangfireServer();
             
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -79,6 +48,35 @@ namespace WebApp.WebAPI
             {
                 var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 opt.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
+                opt.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "WebApp API",
+                    Version = "v1",
+                    Description = "WebApp API"
+                });
+
+                opt.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme()
+                {
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = JwtBearerDefaults.AuthenticationScheme,
+                });
+
+                opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    { new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = JwtBearerDefaults.AuthenticationScheme
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
             });
 
             var app = builder.Build();
@@ -89,13 +87,16 @@ namespace WebApp.WebAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            app.UseHangfireDashboard();
+          
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
             app.UseAuthorization();
 
-
+            app.UseHangfireDashboard(options: new DashboardOptions()
+            {
+                Authorization = [new HangfireDashboardAuthorizationAttribute("Admin")]
+            });
             app.MapControllers();
 
             app.Run();
